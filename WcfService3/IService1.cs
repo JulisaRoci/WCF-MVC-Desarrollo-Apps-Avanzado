@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
+﻿using System.Collections.Generic;
 using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Text;
 using WcfService3.Models;
 
 namespace WcfService3
@@ -13,10 +8,18 @@ namespace WcfService3
     public interface IService1
     {
         [OperationContract]
-        List<Producto> ListarProductos();
+        List<sp_ListarProductos_Result> ListarProductos();
 
         [OperationContract]
-        Producto ObtenerProducto(int id);
-    }
+        sp_ObtenerProductoPorId_Result ObtenerProductoPorId(int id);
 
+        [OperationContract]
+        RespuestaOperacion InsertarProducto(ProductoDTO producto);
+
+        [OperationContract]
+        RespuestaOperacion ActualizarProducto(ProductoDTO producto);
+
+        [OperationContract]
+        RespuestaOperacion EliminarProducto(int id);
+    }
 }
