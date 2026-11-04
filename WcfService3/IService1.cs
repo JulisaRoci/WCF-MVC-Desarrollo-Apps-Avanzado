@@ -21,5 +21,9 @@ namespace WcfService3
 
         [OperationContract]
         RespuestaOperacion EliminarProducto(int id);
+
+        [OperationContract]
+        RespuestaOperacion RegistrarDevolucionVenta(DevolucionRequest solicitud);
+
     }
 }

@@ -29,6 +29,10 @@ namespace WcfService3
     
         public virtual DbSet<Categoria> Categorias { get; set; }
         public virtual DbSet<Producto> Productos { get; set; }
+        public virtual DbSet<DetalleDevolucion> DetalleDevolucions { get; set; }
+        public virtual DbSet<DetalleVenta> DetalleVentas { get; set; }
+        public virtual DbSet<Devolucion> Devolucions { get; set; }
+        public virtual DbSet<Venta> Ventas { get; set; }
     
         public virtual int sp_ActualizarProducto(Nullable<int> id, string nombre, string descripcion, Nullable<decimal> precio, Nullable<int> stock, Nullable<int> categoriaId, string urlImagen)
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using WcfService3.Models;
 
 namespace WcfService3
@@ -134,6 +135,127 @@ namespace WcfService3
                     Mensaje = $"El producto con ID {id} fue eliminado correctamente."
                 };
             }
+        }
+
+
+        // 6. REGISTRAR DEVOLUCIÓN DE VENTA
+        public RespuestaOperacion RegistrarDevolucionVenta(DevolucionRequest solicitud)
+        {
+            // 1. Validaciones Iniciales
+            if (solicitud == null)
+                return new RespuestaOperacion { Exito = false, Mensaje = "La solicitud de devolución es nula." };
+
+            if (solicitud.IdVenta <= 0)
+                return new RespuestaOperacion { Exito = false, Mensaje = "El ID de la venta es inválido." };
+
+            if (string.IsNullOrWhiteSpace(solicitud.MotivoDevolucion))
+                return new RespuestaOperacion { Exito = false, Mensaje = "El motivo de la devolución es obligatorio." };
+
+            if (solicitud.Detalles == null || solicitud.Detalles.Count == 0)
+                return new RespuestaOperacion { Exito = false, Mensaje = "Debe proporcionar al menos un detalle de devolución." };
+
+            // 2. Control de Transacción con TransactionScope (REQ2)
+            using (TransactionScope scope = new TransactionScope())
+            {
+                using (var db = new TiendaDBEntities())
+                {
+                    // A. Verificar que la venta exista
+                    var venta = db.Ventas.FirstOrDefault(v => v.Id == solicitud.IdVenta);
+                    if (venta == null)
+                        return new RespuestaOperacion { Exito = false, Mensaje = $"No existe una venta registrada con el ID {solicitud.IdVenta}." };
+
+                    // B. Obtener los detalles de la venta mediante la propiedad de navegación o el DbContext
+                    var detallesVenta = db.DetalleVentas.Where(dv => dv.Venta.Id == solicitud.IdVenta).ToList();
+                    decimal montoTotalDevuelto = 0;
+
+                    // C. Obtener devoluciones previas registradas usando las colecciones exactas de tu diagrama
+                    var devolucionesPrevias = db.Devolucions
+                        .Where(d => d.Venta.Id == solicitud.IdVenta)
+                        .SelectMany(d => d.DetalleDevolucions)
+                        .ToList();
+
+                    // D. Validaciones por cada producto a devolver
+                    foreach (var item in solicitud.Detalles)
+                    {
+                        if (item.Cantidad <= 0)
+                            return new RespuestaOperacion { Exito = false, Mensaje = $"La cantidad a devolver para el producto ID {item.IdProducto} debe ser mayor a cero." };
+
+                        var detalleOriginal = detallesVenta.FirstOrDefault(dv => dv.Producto.Id == item.IdProducto);
+                        if (detalleOriginal == null)
+                            return new RespuestaOperacion { Exito = false, Mensaje = $"El producto ID {item.IdProducto} no pertenece a la venta {solicitud.IdVenta}." };
+
+                        int yaDevuelto = devolucionesPrevias
+                            .Where(dd => dd.Producto.Id == item.IdProducto)
+                            .Sum(dd => (int?)dd.Cantidad) ?? 0;
+
+                        int disponibleParaDevolver = detalleOriginal.Cantidad - yaDevuelto;
+
+                        if (item.Cantidad > disponibleParaDevolver)
+                        {
+                            return new RespuestaOperacion
+                            {
+                                Exito = false,
+                                Mensaje = $"No se puede devolver {item.Cantidad} unidad(es) del producto ID {item.IdProducto}. Disponible máximo: {disponibleParaDevolver} unidad(es)."
+                            };
+                        }
+
+                        montoTotalDevuelto += item.Cantidad * detalleOriginal.Precio;
+                    }
+
+                    // E. Determinar si es Devolución PARCIAL o COMPLETA
+                    int totalItemsVendidos = detallesVenta.Sum(dv => dv.Cantidad);
+                    int totalItemsDevueltosPrevios = devolucionesPrevias.Sum(dd => dd.Cantidad);
+                    int totalItemsSolicitados = solicitud.Detalles.Sum(d => d.Cantidad);
+
+                    string tipoDevolucion = (totalItemsDevueltosPrevios + totalItemsSolicitados >= totalItemsVendidos) ? "COMPLETA" : "PARCIAL";
+
+                    // F. Registrar Cabecera asociando la entidad Venta
+                    var nuevaDevolucion = new Devolucion
+                    {
+                        Venta = venta,
+                        Fecha = DateTime.Now,
+                        MotivoDevolucion = solicitud.MotivoDevolucion,
+                        TipoDevolucion = tipoDevolucion,
+                        MontoTotalDevuelto = montoTotalDevuelto
+                    };
+                    db.Devolucions.Add(nuevaDevolucion);
+                    db.SaveChanges(); // Guarda y genera el ID de la Devolución
+
+                    // G. Registrar Detalle asociando las entidades Producto y Devolucion
+                    foreach (var item in solicitud.Detalles)
+                    {
+                        var detalleOriginal = detallesVenta.First(dv => dv.Producto.Id == item.IdProducto);
+                        var productoBD = db.Productos.FirstOrDefault(p => p.Id == item.IdProducto);
+
+                        var nuevoDetalleDev = new DetalleDevolucion
+                        {
+                            Devolucion = nuevaDevolucion,
+                            Producto = productoBD,
+                            Cantidad = item.Cantidad,
+                            PrecioVenta = detalleOriginal.Precio
+                        };
+                        db.DetalleDevolucions.Add(nuevoDetalleDev);
+
+                        // Actualización de Stock en la entidad Producto
+                        if (productoBD != null)
+                        {
+                            productoBD.Stock += item.Cantidad;
+                        }
+                    }
+
+                    db.SaveChanges();
+
+                    // Confirmar Transacción
+                    scope.Complete();
+
+                    return new RespuestaOperacion
+                    {
+                        Exito = true,
+                        Mensaje = $"Devolución registrada exitosamente (ID Devolución: {nuevaDevolucion.Id}). Tipo: {tipoDevolucion}. Monto devuelto: S/ {montoTotalDevuelto}."
+                    };
+                }
+            }
+
         }
     }
 }

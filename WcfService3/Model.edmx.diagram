@@ -4,10 +4,19 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="9b1ae52ffb2e4eec8d72bbcd5a735e46" Name="Diagram1">
+      <Diagram DiagramId="9b1ae52ffb2e4eec8d72bbcd5a735e46" Name="Diagram1" ZoomLevel="74">
         <EntityTypeShape EntityType="TiendaDBModel.Categoria" Width="1.5" PointX="0.75" PointY="1.25" IsExpanded="true" />
         <EntityTypeShape EntityType="TiendaDBModel.Producto" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
         <AssociationConnector Association="TiendaDBModel.FK_Productos_Categorias" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="TiendaDBModel.DetalleDevolucion" Width="1.75" PointX="5.625" PointY="3.875" />
+        <EntityTypeShape EntityType="TiendaDBModel.DetalleVenta" Width="1.5" PointX="5.625" PointY="6.875" />
+        <EntityTypeShape EntityType="TiendaDBModel.Devolucion" Width="1.5" PointX="3" PointY="6.5" />
+        <EntityTypeShape EntityType="TiendaDBModel.Venta" Width="1.5" PointX="0.75" PointY="6.625" />
+        <AssociationConnector Association="TiendaDBModel.FK_DetalleDevolucion_Devolucion" />
+        <AssociationConnector Association="TiendaDBModel.FK_DetalleDevolucion_Productos" />
+        <AssociationConnector Association="TiendaDBModel.FK_DetalleVenta_Productos" />
+        <AssociationConnector Association="TiendaDBModel.FK_DetalleVenta_Ventas" />
+        <AssociationConnector Association="TiendaDBModel.FK_Devolucion_Ventas" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

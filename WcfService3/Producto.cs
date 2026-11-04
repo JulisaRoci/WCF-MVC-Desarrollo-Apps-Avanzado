@@ -14,6 +14,13 @@ namespace WcfService3
     
     public partial class Producto
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Producto()
+        {
+            this.DetalleDevolucions = new HashSet<DetalleDevolucion>();
+            this.DetalleVentas = new HashSet<DetalleVenta>();
+        }
+    
         public int Id { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
@@ -22,5 +29,9 @@ namespace WcfService3
         public string UrlImagen { get; set; }
     
         public virtual Categoria Categoria { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<DetalleDevolucion> DetalleDevolucions { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<DetalleVenta> DetalleVentas { get; set; }
     }
 }
