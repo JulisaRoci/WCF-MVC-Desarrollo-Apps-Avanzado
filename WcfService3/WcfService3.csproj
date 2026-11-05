@@ -18,7 +18,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
-    <IISExpressSSLPort />
+    <IISExpressSSLPort>44350</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -51,6 +51,7 @@
       <HintPath>..\packages\EntityFramework.6.5.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IdentityModel" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Security" />
     <Reference Include="System.Transactions" />
@@ -90,6 +91,7 @@
     <Compile Include="Categoria.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
+    <Compile Include="Seguridad\ValidadorCredenciales.cs" />
     <Compile Include="Data\DataProducto.cs" />
     <Compile Include="DetalleDevolucion.cs">
       <DependentUpon>Model.tt</DependentUpon>
@@ -176,7 +178,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>61507</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:61507/</IISUrl>
+          <IISUrl>https://localhost:44350/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

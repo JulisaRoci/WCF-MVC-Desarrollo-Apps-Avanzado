@@ -1,0 +1,254 @@
+@model TestCliente.Models.CertificadoDevolucionViewModel
+@{
+    ViewBag.Title = "Certificado Oficial de Devolución";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* Estilos del Certificado de Devolución */
+    .certificate-card {
+        background: #ffffff;
+        border: 12px double #1a365d;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
+
+    .certificate-watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-30deg);
+        font-size: 5rem;
+        font-weight: 900;
+        color: rgba(26, 54, 93, 0.04);
+        letter-spacing: 12px;
+        pointer-events: none;
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    .certificate-header {
+        border-bottom: 2px solid #2b6cb0;
+        padding-bottom: 20px;
+        margin-bottom: 25px;
+    }
+
+    .badge-parcial {
+        background-color: #d69e2e;
+        color: #fff;
+        font-size: 0.95rem;
+        padding: 6px 14px;
+        border-radius: 20px;
+    }
+
+    .badge-completa {
+        background-color: #38a169;
+        color: #fff;
+        font-size: 0.95rem;
+        padding: 6px 14px;
+        border-radius: 20px;
+    }
+
+    .stamp-box {
+        border: 3px dashed #c53030;
+        color: #c53030;
+        padding: 12px 18px;
+        border-radius: 8px;
+        text-align: center;
+        display: inline-block;
+        transform: rotate(-3deg);
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .security-badge {
+        font-size: 0.8rem;
+        background: #edf2f7;
+        border-left: 4px solid #3182ce;
+        padding: 10px 15px;
+        border-radius: 0 6px 6px 0;
+    }
+
+    /* Reglas para impresión limpia */
+    @media print {
+        header, footer, nav, .btn-no-print {
+            display: none !important;
+        }
+        body {
+            background: #fff;
+            padding: 0;
+            margin: 0;
+        }
+        .certificate-card {
+            border: 6px double #000;
+            box-shadow: none;
+            padding: 20px;
+            margin: 0;
+            page-break-inside: avoid;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            <!-- Botones de Acción -->
+            <div class="d-flex justify-content-between align-items-center mb-3 btn-no-print">
+                <a href="@Url.Action("Index", "Producto")" class="btn btn-outline-secondary">
+                    <i class="glyphicon glyphicon-arrow-left"></i> Volver a Productos
+                </a>
+                <div>
+                    <button onclick="window.print()" class="btn btn-primary">
+                        <i class="glyphicon glyphicon-print"></i> Imprimir Certificado / Guardar PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Estructura del Certificado -->
+            <div class="certificate-card">
+                <div class="certificate-watermark">DEVOLUCIÓN OFICIAL</div>
+
+                <!-- Encabezado -->
+                <div class="certificate-header">
+                    <div class="row align-items-center">
+                        <div class="col-xs-8 col-sm-8">
+                            <h2 style="color: #1a365d; font-weight: 800; margin: 0; text-transform: uppercase;">
+                                Certificado de Devolución
+                            </h2>
+                            <p class="text-muted" style="margin-top: 5px; margin-bottom: 0;">
+                                Sistema Empresarial WCF-MVC &bull; Constancia Oficial de Retorno de Inventario
+                            </p>
+                        </div>
+                        <div class="col-xs-4 col-sm-4 text-right">
+                            <h4 style="color: #2b6cb0; font-weight: bold; margin: 0;">
+                                @Model.NumeroCertificado
+                            </h4>
+                            <small class="text-muted">Fecha: @Model.FechaEmision.ToString("dd/MM/yyyy HH:mm")</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Datos Principales -->
+                <div class="row" style="margin-bottom: 25px;">
+                    <div class="col-sm-4">
+                        <div class="panel panel-default" style="margin-bottom: 10px;">
+                            <div class="panel-heading" style="font-weight: bold;">ID Devolución</div>
+                            <div class="panel-body text-center">
+                                <h3 style="margin: 0; color: #1a365d; font-weight: bold;">#@Model.IdDevolucion</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="panel panel-default" style="margin-bottom: 10px;">
+                            <div class="panel-heading" style="font-weight: bold;">Venta de Origen</div>
+                            <div class="panel-body text-center">
+                                <h3 style="margin: 0; color: #2b6cb0; font-weight: bold;">Venta #@Model.IdVenta</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="panel panel-default" style="margin-bottom: 10px;">
+                            <div class="panel-heading" style="font-weight: bold;">Tipo de Devolución</div>
+                            <div class="panel-body text-center">
+                                @if (Model.TipoDevolucion == "COMPLETA")
+                                {
+                                    <span class="badge-completa">COMPLETA</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-parcial">PARCIAL</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motivo y Justificación -->
+                <div class="well well-sm" style="background-color: #f7fafc; border-left: 4px solid #4a5568; margin-bottom: 25px;">
+                    <strong style="color: #2d3748;">Motivo de la Devolución:</strong>
+                    <p style="margin: 5px 0 0 0; color: #4a5568;">@Model.MotivoDevolucion</p>
+                </div>
+
+                <!-- Tabla de Productos Devueltos -->
+                <div class="table-responsive" style="margin-bottom: 20px;">
+                    <table class="table table-bordered table-striped">
+                        <thead style="background-color: #2b6cb0; color: white;">
+                            <tr>
+                                <th style="width: 15%;">Cod. Producto</th>
+                                <th>Descripción de Mercadería Devuelta</th>
+                                <th class="text-center" style="width: 15%;">Cantidad</th>
+                                <th class="text-right" style="width: 20%;">Precio Unitario</th>
+                                <th class="text-right" style="width: 20%;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ItemsDevueltos != null && Model.ItemsDevueltos.Count > 0)
+                            {
+                                foreach (var item in Model.ItemsDevueltos)
+                                {
+                                    <tr>
+                                        <td>#@item.IdProducto</td>
+                                        <td>@item.NombreProducto</td>
+                                        <td class="text-center"><strong>@item.Cantidad</strong></td>
+                                        <td class="text-right">S/ @item.PrecioUnitario.ToString("N2")</td>
+                                        <td class="text-right"><strong>S/ @item.Subtotal.ToString("N2")</strong></td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Devolución consolidada registrada en el sistema.</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr style="background-color: #edf2f7; font-size: 1.15rem;">
+                                <th colspan="4" class="text-right" style="vertical-align: middle;">Monto Total Reembolsado:</th>
+                                <th class="text-right" style="color: #2b6cb0; font-size: 1.25rem;">
+                                    S/ @Model.MontoTotalDevuelto.ToString("N2")
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Sellos de Seguridad y Firmas -->
+                <div class="row align-items-center" style="margin-top: 35px;">
+                    <div class="col-xs-6 col-sm-6">
+                        <div class="stamp-box">
+                            <div>&#10004; APROBADO Y AUDITADO</div>
+                            <small>SERVICIO WCF HTTPS / SSL</small>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 text-right">
+                        <div style="display: inline-block; text-align: center; border-top: 1px solid #718096; width: 220px; padding-top: 6px;">
+                            <small class="text-muted">Firma / Aprobación Autorizada</small><br />
+                            <strong style="color: #2d3748; font-size: 0.85rem;">@Model.UsuarioAutorizador</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer de Seguridad Criptográfica -->
+                <div class="security-badge" style="margin-top: 30px;">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <strong>Protocolo Seguro:</strong> @Model.ProtocoloSeguridad &bull;
+                            <strong>Hash de Trazabilidad:</strong> <code>@Model.HashFirmaDigital</code>
+                        </div>
+                        <div class="col-sm-4 text-right">
+                            <small class="text-muted">Documento electrónico emitido conforme a normas de evaluación PA3.</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
